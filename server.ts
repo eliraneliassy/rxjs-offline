@@ -23,8 +23,8 @@ app.get('/address', (req, res) => {
 
 app.post('/address', (req, res) => {
     try {
-        app.locals.address = req.body.address;
-        res.json('OK');
+        app.locals.address = req.body;
+        res.json(app.locals.address);
     } catch (e) {
         res.status(500).json({ error: 'Internal server error' });
 
