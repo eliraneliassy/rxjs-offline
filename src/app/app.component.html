@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" [class.offline]="!(isOnline$ | async)">
     <mat-toolbar-row>
         <span>Handle offline with RXJS</span>
     </mat-toolbar-row>
