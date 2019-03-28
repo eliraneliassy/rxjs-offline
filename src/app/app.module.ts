@@ -39,4 +39,5 @@ import {OfflineService} from './services/offline.service';
   }],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

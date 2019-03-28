@@ -23,7 +23,7 @@ export class OfflineInterceptor implements HttpInterceptor {
             this.offline.saveReq(req);
             return EMPTY;
           }
-          return of(errors);
+          return throwError(errors);
         })
     );
   }

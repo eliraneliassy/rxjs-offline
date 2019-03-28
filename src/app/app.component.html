@@ -1,8 +1,10 @@
-<mat-toolbar color="primary">
+<div [class.offline]="isOffline$ | async">
+  <mat-toolbar color="primary">
     <mat-toolbar-row>
-        <span>Handle offline with RXJS</span>
+      <span>Handle offline with RXJS</span>
     </mat-toolbar-row>
-</mat-toolbar>
-<app-address></app-address>
+  </mat-toolbar>
+  <app-address></app-address>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
+</div>

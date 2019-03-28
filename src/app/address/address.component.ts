@@ -1,3 +1,5 @@
+import {of} from 'rxjs';
+import {skip} from 'rxjs/operators';
 import { Address } from './../address.interface';
 import { ApiService } from './../services/api.service';
 import { Component, OnInit } from '@angular/core';
@@ -10,6 +12,8 @@ import { states } from './states';
   styleUrls: ['./address.component.scss']
 })
 export class AddressComponent implements OnInit {
+
+  STORAGE_KEY = '__addressForm__';
 
   states = states;
   hasUnitNumber = false;
@@ -32,17 +36,29 @@ export class AddressComponent implements OnInit {
   constructor(private fb: FormBuilder, private apiService: ApiService) { }
 
   ngOnInit(): void {
-    this.apiService.getAddress()
-      .subscribe((address: Address) => {
-        if (address) {
-          this.addressForm.patchValue(address);
-        }
-      });
-
-    this.addressForm.valueChanges.subscribe((form) => {
-      this.apiService.saveAddress(form).subscribe();
+    this.loadFormData().subscribe((address: Address) => {
+      if (address) {
+        this.addressForm.patchValue(address);
+      }
     });
 
+    this.addressForm.valueChanges.subscribe((formData) => {
+      this.saveFormData(formData);
+    });
+
+  }
+
+  loadFormData() {
+    const formData = localStorage.getItem(this.STORAGE_KEY);
+    if (formData) {
+      return of(JSON.parse(formData));
+    }
+    return this.apiService.getAddress();
+  }
+
+  saveFormData(formData) {
+    this.apiService.saveAddress(formData).subscribe();
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(formData));
   }
 
   onSubmit() {
