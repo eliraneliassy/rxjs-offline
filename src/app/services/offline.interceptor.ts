@@ -1,18 +1,16 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, fromEvent, throwError, of } from 'rxjs';
-import { mapTo, retryWhen, switchMap, flatMap, concatMap, tap } from 'rxjs/operators';
+import { mapTo, retryWhen, switchMap, flatMap, concatMap, tap, filter } from 'rxjs/operators';
+import { OfflineService } from './offline.service';
 
 @Injectable({ providedIn: 'root' })
 export class OfflineInterceptor implements HttpInterceptor {
     STORAGE_KEY = '__requests__';
-    private onlineChanges$ = fromEvent(window, 'online').pipe(mapTo(true));
 
-    get isOnline() {
-        return navigator.onLine;
-    }
-
-    constructor(private handler: HttpHandler) {
+    constructor(
+        private handler: HttpHandler,
+        private offlineService: OfflineService) {
         const requests = this.getReqs();
         of(requests).pipe(
             flatMap((reqs: Request[]) => reqs),
@@ -28,11 +26,13 @@ export class OfflineInterceptor implements HttpInterceptor {
         : Observable<HttpEvent<any>> {
         return next.handle(req).pipe(
             retryWhen(errors => {
-                if (this.isOnline) {
+                if (window.navigator.onLine) {
                     return errors.pipe(switchMap(err => throwError(err)));
                 }
                 this.saveReq(req);
-                return this.onlineChanges$;
+                return this.offlineService.isOnline.pipe(
+                    filter(res => res)
+                );
             })
         );
     }
